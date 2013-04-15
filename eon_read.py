@@ -17,7 +17,7 @@ class AKMC_proc_data(object):
     accessable through functioncalls.
     """
 
-    def __init__(self, path):
+    def __init__(self, path='.'):
         self.path = path
         self.nrStates = self._findNumStates()
         self.nrProcesses = self._findNumProc()
@@ -372,15 +372,15 @@ def read_orientations(config):
 
 def read_dynamics(path='.',only_stateids=False, dump=0):
     
-    dynamics = _attempt_read_pickle("dynamics")
-    if dynamics is None:    
-        dynamics = [ ]
+    dynamicsData = _attempt_read_pickle("dynamics")
+    if dynamicsData is None:    
+        dynamicsData = [ ]
         for step in dynamics(path,only_stateids):
-            dynamics.append(step)
+            dynamicsData.append(step)
 
     if dump:
-        _dump_pickle("dynamics", dynamics)
-    return dynamics
+        _dump_pickle("dynamics", dynamicsData)
+    return dynamicsData
 """
 def read_dynamics(path='.',only_stateids=False, dump=0):
 
@@ -492,11 +492,12 @@ def read_superbasins(path='.', read_old_basins=True, dump=0):
         for filename in os.listdir(superbasinpath):
             if filename == "storage":
                 continue
-            superbasinid=int(filename)
-            sbdict = _read_superbasin(superbasinpath,filename)
-            sbdict['id'] = superbasinid
-            sbdict['is_active'] = True
-            superbasins.append(sbdict)
+            if filename[0] != '.':
+                superbasinid=int(filename)
+                sbdict = _read_superbasin(superbasinpath,filename)
+                sbdict['id'] = superbasinid
+                sbdict['is_active'] = True
+                superbasins.append(sbdict)
 
         #determine all old superbasins
         oldsuperbasins = []

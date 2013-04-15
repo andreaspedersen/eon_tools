@@ -66,52 +66,102 @@ class SimulationData(object):
         """
         arr = np.loadtxt(f,skiprows=1,usecols=(index,))
         return np.argsort(arr)
-        
-    def getProcIndexByLowestSaddleEnergy(self, state):
+    
+    
+    def getProcessIndexWithLowestSaddleEnergyForState(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = self._getOrderBy(f, 1)
         f.close()
         return res
-            
-    def getProcIndexByLowestProductEnergy(self, state):
+    
+    
+    def getProcessIndexWithLowestProductEnergyForState(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = self._getOrderBy(f, 4)
         f.close()
         return res
-            
-    def getSaddleEnergys(self, state):
+    
+    
+    def getSaddleEnergiesForState(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = np.loadtxt(f,skiprows=1,usecols=(1,))
         f.close()
+        if np.size(res) == 1:
+            res = np.array([res])
         return res
-            
-    def getProductEnergys(self, state):
+
+    
+    def getSaddleEnergiesAll(self):
+        l = []
+        for i in range(self.nrStates):
+            l.extend(list(self.getSaddleEnergiesForState(i)))
+        return np.array(l,'f')
+
+    
+    def getProductEnergiesForState(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = np.loadtxt(f,skiprows=1,usecols=(4,))
         f.close()
+        if np.size(res) == 1:
+            res = np.array([res])
         return res
-        
-    def getProductPicked(self, state):
+
+    
+    def getProductEnergiesAll(self):
+        l = []
+        for i in range(self.nrStates):
+            l.extend(list(self.getProductEnergiesForState(i)))
+        return np.array(l,'f')
+
+    
+    def getBarriersForState(self, state):
+        f = open(self._getProcessTable(state), 'r')
+        res = np.loadtxt(f,skiprows=1,usecols=(6,))
+        f.close()
+        if np.size(res) == 1:
+            res = np.array([res])
+        return res
+
+    
+    def getBarriersAll(self):
+        l = []
+        for i in range(self.nrStates):
+            l.extend(list(self.getBarriersForState(i)))
+        return np.array(l,'f')
+
+
+    def getPrefactorsForState(self, state):
+        f = open(self._getProcessTable(state), 'r')
+        res = np.loadtxt(f,skiprows=1,usecols=(2,))
+        f.close()
+        if np.size(res) == 1:
+            res = np.array([res])
+        return res
+    
+
+    def getPrefactorsAll(self):
+        l = []
+        for i in range(self.nrStates):
+            l.extend(list(self.getPrefactorsForState(i)))
+        return np.array(l,'f')
+
+    
+    def getProductsPickedForState(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = np.loadtxt(f,skiprows=1,usecols=(3,))
         f.close()
         return res
         
-    def getBarrier(self, state):
-        f = open(self._getProcessTable(state), 'r')
-        res = np.loadtxt(f,skiprows=1,usecols=(6,))
-        f.close()
-        return res
-            
-    def getReactantEnergy(self, state):
+    
+    def getReactantEnergyForState(self, state):
         filePath = os.path.join(self.path, 'states', str(state), 'info')
         f = open(filePath, 'r')
         cfg = ConfigParser.ConfigParser()
         cfg.readfp(f)
         f.close()
         return cfg.getfloat('MetaData', 'reactant energy')
-            
-            
+
+
     def getLowestProductEnergyOfAll(self, nrProc):
         energy = np.zeros(0)
         states = np.zeros(0, dtype='int')
@@ -129,7 +179,10 @@ class SimulationData(object):
             states = states[arg][:nrProc]
             process = process[arg][:nrProc]
         return energy, states, process
-        
+
+    
+    
+    
     def getReac(self, state, proc):
         if state < self.nrStates and proc < self.nrProcesses[state]:
             fName = 'reactant_%i.con' %(proc,)
