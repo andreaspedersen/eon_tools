@@ -1,15 +1,20 @@
-import _path
-from SimulationData import *
-from FindNeighbors import *
+import eon_simulation_data
+import find_neighbors
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
 cutoffs = np.array([[3.9,3.7],[3.7,3.3]])
-outPath = '/home/kjartan/Temp/out'
+fn_cutoffs = {1:  {1:3.9 , 2: 3.7},
+              2: {1:3.7 , 2: 3.3}}
 
-sData = SimulationData('/home/kjartan/Temp/50Zr_50Cu')
-fn = FindNeighbors(sData.getInitReactant(0))
+sData = eon_simulation_data.SimulationData()
+fn = find_neighbors.FindNeighbors(sData.getPathStateReactant(0))
+fn.setCutOffs(fn_cutoffs)
+
+#outPath = '/home/kjartan/Temp/out'
+#sData = SimulationData('/home/kjartan/Temp/50Zr_50Cu')
+#fn = FindNeighbors(sData.getInitReactant(0))
 #x = fn.rdf(9.,9)
 
 """

@@ -23,15 +23,22 @@ class ChangingNeighbors:
     def getIntersects(self):
         res = []
         for i in xrange(self.neigh1.nrAtoms):
-            res.append(np.intersect1d(self.neigh1.getAllNeighbors(i),
-                                      self.neigh2.getAllNeighbors(i)))
+            #            res.append(np.intersect1d(self.neigh1.getAllNeighbors(i),
+            #                          self.neigh2.getAllNeighbors(i)))
+            res.append(np.intersect1d(self.neigh1.getIndiciesAllNeighborsForAtom(i),
+                                      self.neigh2.getIndiciesAllNeighborsForAtom(i)))
         return res
-        
+    
+    
+    
+    
     def getDiffs(self, neighSet1, neighSet2):
         res = []
         for i in xrange(neighSet1.nrAtoms):
-            res.append(np.setdiff1d(neighSet1.getAllNeighbors(i),
-                                    neighSet2.getAllNeighbors(i)))
+            #    res.append(np.setdiff1d(neighSet1.getAllNeighbors(i),
+            #                        neighSet2.getAllNeighbors(i)))
+            res.append(np.setdiff1d(neighSet1.getIndiciesAllNeighborsForAtom(i),
+                                    neighSet2.getIndiciesAllNeighborsForAtom(i)))
         return res
         
     def getOldMinusNew(self):

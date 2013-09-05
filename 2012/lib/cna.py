@@ -10,7 +10,7 @@ def full_cna(fn):
     """
     safn = []
     for i in xrange(fn.nrAtoms):
-        neigh = fn.getAllNeighbors(i)
+        neigh = fn.getIndiciesAllNeighborsForAtom(i)
         neigh = neigh[neigh > i]
         cnas = np.empty((neigh.size, 5), dtype='int')
         cnas[:,0] = i
@@ -31,7 +31,7 @@ def cna(i, j, fn):
     @type  fn: FindNeighbors
     @param fn: The FindNeighbors object for curresponding atoms system
     """
-    cNeigh = np.intersect1d(fn.getAllNeighbors(i),fn.getAllNeighbors(j))
+    cNeigh = np.intersect1d(fn.getIndiciesAllNeighborsForAtom(i),fn.getIndiciesAllNeighborsForAtom(j))
     if not cNeigh.size:
         return 0,0,0
     bonds = {}
@@ -41,7 +41,7 @@ def cna(i, j, fn):
         if l == k:
             l += 1
             cHeads.append(cNeigh[k])
-        bonds[cNeigh[k]] = np.intersect1d(fn.getAllNeighbors(cNeigh[k]), cNeigh[k+1:])
+        bonds[cNeigh[k]] = np.intersect1d(fn.getIndiciesAllNeighborsForAtom(cNeigh[k]), cNeigh[k+1:])
         queue = np.setdiff1d(bonds[cNeigh[k]],cNeigh[:l])
         tail = np.setdiff1d(cNeigh[l:],queue)
         cNeigh[l:] = np.hstack((queue,tail))
