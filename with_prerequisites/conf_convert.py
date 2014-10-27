@@ -197,6 +197,11 @@ if isAse:
         atoms.set_scaled_positions(atoms.get_scaled_positions())
         return
 
+    def ase_strip_filters(confs):
+        atoms = []
+        for c in confs:
+            atoms.append(c[0])
+        return atoms
 ## ASE HELPER STUFF END
 ##-----------------------
 ## ASE FROM AND TO SOMETHING START
@@ -206,33 +211,103 @@ if isAse:
         if not path.endswith('.con'):
             path += '.con'
         f = open(path, 'r')
+        conf = load_con_element(f, boundary)
+        f.close()
         
+        return conf
+
+    def traj_2_ase(path, boundary = [1,1,1]):
+        
+        confs = []
+        f = open(path, 'r')
+        while 1:
+            confs.append(load_con_element(f, boundary))
+            if type(confs[-1]) != tuple:
+                confs.pop(-1)
+                break
+        f.close()
+        
+        return confs
+
+
+#        ## seed to random
+#        f.readline()
+#        
+#        ## time stuff
+#        f.readline()
+#        
+#        basis_vec = map(float, f.readline().split())
+#        
+#        angle_basis_vec = map(lambda x: x - 90 < _floatErr, map(float, f.readline().split()))
+#        if not np.array(angle_basis_vec).sum():
+#            print "Only orthogonal lattice vectores are accepted!"
+#            return
+#        
+#        f.readline()
+#        f.readline()
+#        nrComponents = int(f.readline().strip())
+#        nrAtomsPrType = np.array(map(int, f.readline().split()))
+#        
+#        #Masses, skiped in original parser. Same here
+#        f.readline()
+#        
+#        #All data is parced into these arrays before Atoms object is created.
+#        pos = np.zeros((nrAtomsPrType.sum(), 3))
+#        atomNumbers = np.zeros(nrAtomsPrType.sum())
+#        filt = np.zeros(nrAtomsPrType.sum(), dtype='int32')
+#        
+#        #
+#        for comp in xrange(nrComponents):
+#            element = f.readline().strip()
+#            if element.isdigit():
+#                element = int(element)
+#            else:
+#                element = atomic_numbers.get(element) or self._unkownElement(element)
+#            
+#            f.readline()
+#            
+#            for i in xrange(nrAtomsPrType[0:comp].sum(), nrAtomsPrType[0:comp+1].sum()):
+#                data = f.readline().split()
+#                pos[i] = map(float, data[:3])
+#                atomNumbers[i] = element
+#                filt[i] = int(data[3])
+#        
+#        f.close()
+#        return (ase.Atoms(numbers=atomNumbers, positions=pos, cell=basis_vec, pbc=boundary), abs(filt-1))
+
+
+    def load_con_element(f, boundary = [1,1,1]):
         ## seed to random
         f.readline()
-        
+
         ## time stuff
         f.readline()
-        
+
         basis_vec = map(float, f.readline().split())
-        
+
         angle_basis_vec = map(lambda x: x - 90 < _floatErr, map(float, f.readline().split()))
+        print basis_vec
+        # appear to be the end of a file with more configurations
+        if len(basis_vec) == 0:
+            return
+        
         if not np.array(angle_basis_vec).sum():
             print "Only orthogonal lattice vectores are accepted!"
             return
-        
+
         f.readline()
         f.readline()
         nrComponents = int(f.readline().strip())
         nrAtomsPrType = np.array(map(int, f.readline().split()))
-        
+
         #Masses, skiped in original parser. Same here
         f.readline()
-        
+
         #All data is parced into these arrays before Atoms object is created.
         pos = np.zeros((nrAtomsPrType.sum(), 3))
         atomNumbers = np.zeros(nrAtomsPrType.sum())
         filt = np.zeros(nrAtomsPrType.sum(), dtype='int32')
-        
+
         #
         for comp in xrange(nrComponents):
             element = f.readline().strip()
@@ -248,9 +323,10 @@ if isAse:
                 pos[i] = map(float, data[:3])
                 atomNumbers[i] = element
                 filt[i] = int(data[3])
-        
-        f.close()
+
         return (ase.Atoms(numbers=atomNumbers, positions=pos, cell=basis_vec, pbc=boundary), abs(filt-1))
+    
+
 
 
     # convert atoms object

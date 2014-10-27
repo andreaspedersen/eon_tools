@@ -25,6 +25,7 @@ class SimulationData(object):
         self.path = path
         self.nrStates = self._findNumStates()
         self.nrProcesses = self._findNumProc()
+        self.nrTabulatedSearches = self._findTabSearches()
         self.totalNrProcesses = self._findTotProc()
         
     def _findNumStates(self):
@@ -46,7 +47,26 @@ class SimulationData(object):
                              skiprows=1, usecols=(0,))
             procs[state] = out.size
         return procs
-        
+
+    def _findTabSearches(self):
+        procs = np.empty(self.nrStates, dtype='int')
+        fName = 'processtable'
+        for state in xrange(self.nrStates):
+            path = os.path.join(self.path, 'states', str(state))
+            out = np.loadtxt(os.path.join(path, fName),
+                             skiprows=1, usecols=(8,))
+                             #print state
+                             #print np.size(out)
+            #procs[state] = out.size
+            if np.size(out) > 1:
+                procs[state] = int(sum(out))
+            else:
+                procs[state] = int(out)
+            #            print out
+            #print int(sum(out))
+            #raw_input()
+        return procs
+
     def _findTotProc(self):
         result = 0
         for key in xrange(self.nrStates):
@@ -132,6 +152,14 @@ class SimulationData(object):
     def forStateIdGetPrefactors(self, state):
         f = open(self._getProcessTable(state), 'r')
         res = np.loadtxt(f,skiprows=1,usecols=(2,))
+        f.close()
+        if np.size(res) == 1:
+            res = np.array([res])
+        return res
+
+    def forStateIdGetRates(self, state):
+        f = open(self._getProcessTable(state), 'r')
+        res = np.loadtxt(f,skiprows=1,usecols=(7,))
         f.close()
         if np.size(res) == 1:
             res = np.array([res])
